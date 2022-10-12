@@ -1,12 +1,23 @@
-import {
+const {
   REST,
   Routes,
   Client,
   GatewayIntentBits,
   SlashCommandBuilder,
-} from "discord.js";
-import { joinVoiceChannel, getVoiceConnections } from "@discordjs/voice";
-import * as fs from "fs";
+} = require("discord.js");
+
+const {
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource,
+  getVoiceConnections,
+  AudioPlayerStatus,
+  NoSubscriberBehavior,
+  generateDependencyReport,
+} = require("@discordjs/voice");
+
+const playdl = require("play-dl");
+const fs = require("fs");
 
 let configJson = fs.readFileSync("./config.json");
 let config = JSON.parse(configJson);
@@ -34,6 +45,7 @@ const rest = new REST({ version: "10" }).setToken(config.Discord.Token);
 // Discord bot on ready
 client.on("ready", () => {
   console.log(`機器人 "${client.user.tag}" 運行了!`);
+  console.log(generateDependencyReport());
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -65,10 +77,30 @@ client.on("interactionCreate", async (interaction) => {
         return;
       }
 
-      joinVoiceChannel({
+      let stream = await playdl.stream(url, {
+        discordPlayerCompatibility: true,
+      });
+
+      const player = createAudioPlayer({
+        behaviors: {
+          noSubscriber: NoSubscriberBehavior.Play,
+        },
+      });
+      const resource = createAudioResource(stream.stream, {
+        inputType: stream.type,
+      });
+
+      const connection = joinVoiceChannel({
         channelId: member.voice.channelId,
         guildId: guildId,
         adapterCreator: member.voice.channel.guild.voiceAdapterCreator,
+      });
+
+      player.play(resource);
+      connection.subscribe(player);
+
+      player.on(AudioPlayerStatus.Idle, () => {
+        connection.destroy();
       });
 
       // Remove parameter, then send message
