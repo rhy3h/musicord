@@ -48,6 +48,13 @@ client.on("ready", () => {
   console.log(generateDependencyReport());
 });
 
+const musicQueue = [];
+var player = createAudioPlayer({
+  behaviors: {
+    noSubscriber: NoSubscriberBehavior.Play,
+  },
+});
+var connection = null;
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -68,12 +75,15 @@ client.on("interactionCreate", async (interaction) => {
       // Not match youtube url
       if (!url.match(ytRegex)) {
         await interaction.reply("奇怪的網址");
+        setTimeout(() => interaction.deleteReply(), 5 * 1000);
         return;
       }
 
       // If bot is in a channel, push into a queue
       if (getVoiceConnections().get(guildId)) {
-        await interaction.reply("TODO: Push into queue");
+        musicQueue.push(url);
+        await interaction.reply("新增到播放清單");
+        setTimeout(() => interaction.deleteReply(), 5 * 1000);
         return;
       }
 
@@ -81,30 +91,41 @@ client.on("interactionCreate", async (interaction) => {
         discordPlayerCompatibility: true,
       });
 
-      const player = createAudioPlayer({
-        behaviors: {
-          noSubscriber: NoSubscriberBehavior.Play,
-        },
-      });
       const resource = createAudioResource(stream.stream, {
         inputType: stream.type,
       });
 
-      const connection = joinVoiceChannel({
-        channelId: member.voice.channelId,
-        guildId: guildId,
-        adapterCreator: member.voice.channel.guild.voiceAdapterCreator,
-      });
+      if (!connection) {
+        connection = joinVoiceChannel({
+          channelId: member.voice.channelId,
+          guildId: guildId,
+          adapterCreator: member.voice.channel.guild.voiceAdapterCreator,
+        });
+        connection.subscribe(player);
+      }
 
       player.play(resource);
-      connection.subscribe(player);
 
-      player.on(AudioPlayerStatus.Idle, () => {
-        connection.destroy();
+      player.on(AudioPlayerStatus.Idle, async () => {
+        if (musicQueue.length == 0) {
+          connection?.destroy();
+          connection = null;
+          return;
+        }
+
+        const url = musicQueue.shift();
+        const stream = await playdl.stream(url, {
+          discordPlayerCompatibility: true,
+        });
+        const resource = createAudioResource(stream.stream, {
+          inputType: stream.type,
+        });
+        player.play(resource);
       });
 
       // Remove parameter, then send message
       await interaction.reply(`${url.split("&")[0]}`);
+      setTimeout(() => interaction.deleteReply(), 5 * 1000);
 
       break;
     }
