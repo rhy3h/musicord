@@ -1,19 +1,17 @@
-const {
+import {
   ActionRowBuilder,
-  SlashCommandBuilder,
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
-} = require("discord.js");
+} from "discord.js";
 
-module.exports = {
-  data: new SlashCommandBuilder()
-    .setName("playbar")
-    .setNameLocalizations({ "zh-TW": "播放列" })
-    .setDescription("play options")
-    .setDescriptionLocalizations({ "zh-TW": "播放選項" }),
-  async execute(interaction) {
-    const row = new ActionRowBuilder().addComponents(
+class PlayBar {
+  public row: ActionRowBuilder<ButtonBuilder>;
+  public embed: EmbedBuilder;
+
+  constructor() {
+    // TODO: Declare ButtonID
+    this.row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId("previous_button")
         .setStyle(ButtonStyle.Secondary)
@@ -36,11 +34,8 @@ module.exports = {
         .setEmoji("⏏️")
     );
 
-    const embed = new EmbedBuilder().setColor(0x0099ff).setTitle("Playlist");
+    this.embed = new EmbedBuilder().setColor(0x0099ff).setTitle("Playlist");
+  }
+}
 
-    await interaction.reply({
-      embeds: [embed],
-      components: [row],
-    });
-  },
-};
+export { PlayBar };
