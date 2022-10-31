@@ -14,10 +14,10 @@ import {
 
 import { video_basic_info } from "play-dl";
 
-import { PlayBar } from "../commands/playbar";
-import { Player } from "../commands/player";
-import { AudioInfo } from "../commands/audioInfo";
-import { PlaylistModal } from "../commands/playlistModal";
+import { PlayBar } from "../components/playbar";
+import { Player } from "./player";
+import { AudioInfo } from "./audioInfo";
+import { PlaylistModal } from "../components/playlistModal";
 
 class DcPlayer {
   public playBar: PlayBar;
