@@ -12,7 +12,7 @@ import {
   VoiceConnection,
 } from "@discordjs/voice";
 
-import { video_basic_info, YouTubeVideo } from "play-dl";
+import { video_basic_info } from "play-dl";
 
 import { PlayBar } from "../commands/playbar";
 import { Player } from "../commands/player";
@@ -46,7 +46,7 @@ class DcPlayer {
   }
 
   public async executeCommand(interaction: ChatInputCommandInteraction) {
-    interaction.reply({
+    await interaction.reply({
       embeds: [this.playBar.embed],
       components: [this.playBar.row],
     });
@@ -54,14 +54,15 @@ class DcPlayer {
 
   public async executeButton(interaction: ButtonInteraction) {
     const { guildId, member } = interaction;
-
     if (!interaction || !guildId || !member) {
-      return;
+      throw new Error(`[ERROR] No interaction, guildId or member`);
     }
 
     const guildMember = interaction.guild?.members.cache.get(member.user.id);
     if (!guildMember?.voice.channelId || !guildMember?.voice.channel) {
-      return;
+      throw new Error(
+        `[ERROR] ${guildMember?.displayName} not in an voice channel`
+      );
     }
 
     if (
@@ -77,18 +78,6 @@ class DcPlayer {
     this.voiceConnection = getVoiceConnection(guildId);
     this.voiceConnection?.subscribe(this.player);
 
-    if (this.queue.length == 0) {
-      for (const sample of this.sampleQueue) {
-        const sampleInfo = (await video_basic_info(sample)).video_details;
-        const audioInfo = new AudioInfo(
-          sampleInfo.title || "",
-          sampleInfo.url,
-          sampleInfo.durationInSec
-        );
-        this.queue.push(audioInfo);
-      }
-    }
-
     switch (interaction.customId) {
       case "play_pause_button": {
         if (this.player.state.status == AudioPlayerStatus.Playing) {
@@ -98,10 +87,13 @@ class DcPlayer {
         }
 
         this.playPause();
-
-        await interaction.update({
-          components: [this.playBar.row],
-        });
+        await interaction
+          .update({
+            components: [this.playBar.row],
+          })
+          .catch((err) => {
+            throw err;
+          });
         return;
       }
       case "next_button": {
@@ -117,13 +109,17 @@ class DcPlayer {
         break;
       }
       case "plus_button": {
-        await interaction.showModal(this.playlistModal);
+        await interaction.showModal(this.playlistModal).catch((err) => {
+          throw err;
+        });
         return;
       }
     }
 
     this.updatePlayBar();
-    await interaction.update({ embeds: [this.playBar.embed] });
+    await interaction.update({ embeds: [this.playBar.embed] }).catch((err) => {
+      throw err;
+    });
   }
 
   public async executeSubmit(interaction: ModalSubmitInteraction) {
@@ -131,34 +127,44 @@ class DcPlayer {
       .getTextInputValue("music_url_list_input")
       .split("\n");
 
+    await interaction.deferReply();
     for (const url of input_urls) {
-      try {
-        const sampleInfo = (await video_basic_info(url)).video_details;
-        const audioInfo = new AudioInfo(
-          sampleInfo.title || "",
-          sampleInfo.url,
-          sampleInfo.durationInSec
-        );
-        this.queue.push(audioInfo);
-      } catch (err) {}
+      const sampleInfo = (
+        await video_basic_info(url).catch((err) => {
+          return;
+        })
+      )?.video_details;
+
+      if (!sampleInfo) {
+        return;
+      }
+
+      const audioInfo = new AudioInfo(
+        sampleInfo.title || "",
+        sampleInfo.url,
+        sampleInfo.durationInSec
+      );
+      this.queue.push(audioInfo);
     }
     this.updatePlayBar();
 
-    try {
-      const message = await interaction.channel?.messages.fetch(
-        `${interaction.message?.id}`
-      );
-      await message?.edit({ embeds: [this.playBar.embed] });
-      await interaction.reply({
+    const message = await interaction.channel?.messages
+      .fetch(`${interaction.message?.id}`)
+      .catch((err) => {
+        throw err;
+      });
+
+    await message?.edit({ embeds: [this.playBar.embed] });
+    await interaction
+      .editReply({
         content: "Success",
+      })
+      .catch((err) => {
+        throw err;
       });
-      await interaction.deleteReply();
-    } catch (err) {
-      await interaction.reply({
-        content: "Fail",
-      });
-      await interaction.deleteReply();
-    }
+    await interaction.deleteReply().catch((err) => {
+      throw err;
+    });
   }
 
   private playPause() {
@@ -197,7 +203,7 @@ class DcPlayer {
     try {
       this.player.playSong(this.queue[this.index].url);
     } catch (err) {
-      console.log("[ERROR] playNow");
+      console.log("[ERROR] Play song occur error");
     }
   }
 

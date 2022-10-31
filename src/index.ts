@@ -30,14 +30,27 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   const dcPlayer = <DcPlayer>dcClient.dcPlayers.get(guildId);
 
+  // TODO: Possible use deferReply instead of reply
   if (interaction.isChatInputCommand()) {
-    await dcPlayer.executeCommand(interaction);
+    await dcPlayer.executeCommand(interaction).catch(async (err) => {
+      console.log(err);
+      await interaction.reply({ content: "Fail" });
+      await interaction.deleteReply();
+    });
   }
   if (interaction.isButton()) {
-    await dcPlayer.executeButton(interaction);
+    await dcPlayer.executeButton(interaction).catch(async (err) => {
+      console.log(err);
+      await interaction.reply({ content: "Fail" });
+      await interaction.deleteReply();
+    });
   }
   if (interaction.isModalSubmit()) {
-    await dcPlayer.executeSubmit(interaction);
+    await dcPlayer.executeSubmit(interaction).catch(async (err) => {
+      console.log(err);
+      await interaction.reply({ content: "Fail" });
+      await interaction.deleteReply();
+    });
   }
 });
 
