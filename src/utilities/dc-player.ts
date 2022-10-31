@@ -27,13 +27,6 @@ class DcPlayer {
   private index: number;
   private queue: Array<AudioInfo>;
 
-  private sampleQueue = [
-    "https://youtu.be/2OqfhxAp9N0",
-    "https://youtu.be/mBZdHuZCfic",
-    "https://youtu.be/8IRX1C6vC_I",
-    "https://youtu.be/tC35oqxnm90",
-  ];
-
   constructor() {
     this.playBar = new PlayBar();
     this.player = new Player();
