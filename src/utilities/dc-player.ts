@@ -39,7 +39,6 @@ class DcPlayer {
   }
 
   public async executeCommand(interaction: ChatInputCommandInteraction) {
-    console.log(interaction);
     switch (interaction.commandId) {
       case "player": {
         await interaction.deferReply();
@@ -47,10 +46,6 @@ class DcPlayer {
           embeds: [this.playBar.embed],
           components: [this.playBar.row],
         });
-        // await interaction.editReply({
-        //   embeds: [this.playBar.embed],
-        //   components: [this.playBar.row],
-        // });
         break;
       }
     }
