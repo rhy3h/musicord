@@ -30,26 +30,29 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   const dcPlayer = <DcPlayer>dcClient.dcPlayers.get(guildId);
 
-  // TODO: Possible use deferReply instead of reply
+  const timeout = 5 * 1000; // ms
   if (interaction.isChatInputCommand()) {
-    await dcPlayer.executeCommand(interaction).catch(async (err) => {
-      console.log(err);
-      await interaction.reply({ content: "Fail" });
-      await interaction.deleteReply();
+    await dcPlayer.executeCommand(interaction).catch(async (err: Error) => {
+      await interaction.reply({ content: err.message });
+      setTimeout(async () => {
+        await interaction.deleteReply();
+      }, timeout);
     });
   }
   if (interaction.isButton()) {
-    await dcPlayer.executeButton(interaction).catch(async (err) => {
-      console.log(err);
-      await interaction.reply({ content: "Fail" });
-      await interaction.deleteReply();
+    await dcPlayer.executeButton(interaction).catch(async (err: Error) => {
+      await interaction.reply({ content: err.message });
+      setTimeout(async () => {
+        await interaction.deleteReply();
+      }, timeout);
     });
   }
   if (interaction.isModalSubmit()) {
-    await dcPlayer.executeSubmit(interaction).catch(async (err) => {
-      console.log(err);
-      await interaction.reply({ content: "Fail" });
-      await interaction.deleteReply();
+    await dcPlayer.executeSubmit(interaction).catch(async (err: Error) => {
+      await interaction.reply({ content: err.message });
+      setTimeout(async () => {
+        await interaction.deleteReply();
+      }, timeout);
     });
   }
 });
