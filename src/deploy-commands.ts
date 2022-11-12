@@ -1,22 +1,29 @@
-import { REST, Routes, SlashCommandBuilder } from "discord.js";
+import { REST, Routes } from "discord.js";
+import fs from "fs/promises";
+import path from "path";
+
 import { clientId, token } from "./config.json";
 
 // Construct and prepare an instance of the REST module
 const rest = new REST({ version: "10" }).setToken(token);
 
-// and deploy your commands!
 (async () => {
+  const commands = [];
+
+  const commandsPath = path.join(__dirname, "commands");
+  const commandFiles = (await fs.readdir(commandsPath)).filter((file) =>
+    file.endsWith(".ts")
+  );
+  // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+  for (const file of commandFiles) {
+    const command = require(`./commands/${file}`);
+    commands.push(command.toJSON());
+  }
+
   try {
     // The put method is used to fully refresh all commands in the guild with the current set
     await rest.put(Routes.applicationCommands(clientId), {
-      body: [
-        new SlashCommandBuilder()
-          .setName("player")
-          .setDescription("Just a player")
-          .setNameLocalizations({ "zh-TW": "播放列" })
-          .setDescriptionLocalizations({ "zh-TW": "就是個播放器" })
-          .toJSON(),
-      ],
+      body: commands,
     });
   } catch (error) {
     // And of course, make sure you catch and log any errors!
