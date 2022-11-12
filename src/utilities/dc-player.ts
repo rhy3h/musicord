@@ -14,7 +14,7 @@ import {
 
 import { video_basic_info } from "play-dl";
 
-import { PlayBar } from "../components/playbar";
+import { PlayBar } from "../components/PlayBar";
 import { Player } from "./player";
 import { AudioInfo } from "./audioInfo";
 import { PlaylistModal } from "../components/playlistModal";
@@ -39,10 +39,21 @@ class DcPlayer {
   }
 
   public async executeCommand(interaction: ChatInputCommandInteraction) {
-    await interaction.reply({
-      embeds: [this.playBar.embed],
-      components: [this.playBar.row],
-    });
+    console.log(interaction);
+    switch (interaction.commandId) {
+      case "player": {
+        await interaction.deferReply();
+        await interaction.editReply({
+          embeds: [this.playBar.embed],
+          components: [this.playBar.row],
+        });
+        // await interaction.editReply({
+        //   embeds: [this.playBar.embed],
+        //   components: [this.playBar.row],
+        // });
+        break;
+      }
+    }
   }
 
   public async executeButton(interaction: ButtonInteraction) {

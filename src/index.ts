@@ -1,7 +1,10 @@
 import { Events, GatewayIntentBits } from "discord.js";
-import { token } from "./config.json";
+
 import { DcClient } from "./utilities/dc-client";
 import { DcPlayer } from "./utilities/dc-player";
+
+import { token } from "./config.json";
+
 const client = new DcClient({
   intents: [
     GatewayIntentBits.Guilds,
@@ -31,14 +34,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
   const dcPlayer = <DcPlayer>dcClient.dcPlayers.get(guildId);
 
   const timeout = 5 * 1000; // ms
+  // Slash Commands
   if (interaction.isChatInputCommand()) {
-    await dcPlayer.executeCommand(interaction).catch(async (err: Error) => {
-      await interaction.reply({ content: err.message });
-      setTimeout(async () => {
-        await interaction.deleteReply();
-      }, timeout);
-    });
+    client.executeChatInputCommand(interaction);
   }
+
   if (interaction.isButton()) {
     await dcPlayer.executeButton(interaction).catch(async (err: Error) => {
       await interaction.reply({ content: err.message });
