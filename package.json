@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:build": "tsc -w",
     "start:run": "nodemon ./dist/index.js",
-    "serve": "concurrently npm:start:*",
+    "develop": "concurrently npm:start:*",
+    "serve": "npx ts-node ./src/index.ts",
     "deploy": "npx ts-node ./src/deploy-commands.ts"
   },
   "repository": {
