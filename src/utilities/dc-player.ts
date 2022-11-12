@@ -129,7 +129,7 @@ class DcPlayer {
       )?.video_details;
 
       if (!sampleInfo) {
-        return;
+        continue;
       }
 
       const audioInfo = new AudioInfo(
@@ -148,13 +148,6 @@ class DcPlayer {
       });
 
     await message?.edit({ embeds: [this.playBar.embed] });
-    await interaction
-      .editReply({
-        content: "Success",
-      })
-      .catch((err) => {
-        throw err;
-      });
     await interaction.deleteReply().catch((err) => {
       throw err;
     });
