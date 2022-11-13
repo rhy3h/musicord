@@ -34,7 +34,25 @@ class PlayBar {
         .setEmoji("⏏️")
     );
 
-    this.embed = new EmbedBuilder().setColor(0x0099ff).setTitle("Playlist");
+    this.embed = this.generateEmbed("\u200b", "\u200b", "\u200b");
+  }
+
+  public generateEmbed(
+    index: string,
+    music: string,
+    time: string,
+    playing?: string
+  ) {
+    return new EmbedBuilder({
+      color: 0x0099ff,
+      title: "Playlist",
+      description: playing ? `Now Playing '${playing}'` : "",
+      fields: [
+        { name: "\u200B", value: index, inline: true },
+        { name: "Name", value: music, inline: true },
+        { name: "Time", value: time, inline: true },
+      ],
+    });
   }
 }
 

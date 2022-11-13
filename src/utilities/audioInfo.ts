@@ -1,7 +1,7 @@
 class AudioInfo {
   public url: string;
-  private title: string;
-  private durationInMins: string;
+  public title: string;
+  public durationInMins: string;
 
   constructor(title: string, url: string, durationInMins: number) {
     this.title = title;

@@ -213,26 +213,22 @@ class DcPlayer {
     this.voiceConnection = undefined;
   }
 
-  public playList() {
-    if (this.queue.length == 0) {
-      return "";
-    }
-
-    let text = "```ansi\n";
-
-    for (let i = 0, len = this.queue.length; i < len; i++) {
-      const prefix = `${i == this.index ? "[2;45m" : "[0m"}${i + 1}`;
-      const { audioText } = this.queue[i];
-
-      text += `${prefix} ${audioText} \n`;
-    }
-
-    text += "```";
-    return text;
-  }
-
   private updatePlayBar() {
-    this.playBar.embed.data.description = this.playList();
+    const index = [];
+    const music = [];
+    const time = [];
+    for (let i = 0, len = this.queue.length; i < len; i++) {
+      const { title, durationInMins } = this.queue[i];
+      index.push(i + 1);
+      music.push(title.length < 50 ? title : title.slice(0, 47) + "...");
+      time.push(durationInMins);
+    }
+    this.playBar.embed = this.playBar.generateEmbed(
+      index.length == 0 ? "\u200B" : index.join("\n"),
+      music.length == 0 ? "\u200B" : music.join("\n"),
+      time.length == 0 ? "\u200B" : time.join("\n"),
+      this.queue[this.index]?.title
+    );
   }
 }
 
