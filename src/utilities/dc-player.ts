@@ -52,73 +52,32 @@ class DcPlayer {
   }
 
   public async executeButton(interaction: ButtonInteraction) {
-    const { guildId, member } = interaction;
-    if (!interaction || !guildId || !member) {
-      throw new Error(`[ERROR] No interaction, guildId or member`);
-    }
-
-    const guildMember = interaction.guild?.members.cache.get(member.user.id);
-    if (!guildMember?.voice.channelId || !guildMember?.voice.channel) {
-      throw new Error(
-        `[ERROR] ${guildMember?.displayName} not in an voice channel`
-      );
-    }
-
-    if (
-      getVoiceConnection(guildId)?.state?.status != VoiceConnectionStatus.Ready
-    ) {
-      joinVoiceChannel({
-        channelId: guildMember.voice.channelId,
-        guildId: guildId,
-        adapterCreator: guildMember?.voice.channel.guild.voiceAdapterCreator,
-      });
-    }
-
-    this.voiceConnection = getVoiceConnection(guildId);
-    this.voiceConnection?.subscribe(this.player);
-
-    switch (interaction.customId) {
-      case "play_pause_button": {
-        if (this.player.state.status == AudioPlayerStatus.Playing) {
-          this.playBar.row.components[1].setEmoji("▶️");
-        } else {
-          this.playBar.row.components[1].setEmoji("⏸️");
+    try {
+      switch (interaction.customId) {
+        case "play_pause_button": {
+          await this.playPause(interaction);
+          break;
         }
-
-        this.playPause();
-        await interaction
-          .update({
-            components: [this.playBar.row],
-          })
-          .catch((err) => {
-            throw err;
-          });
-        return;
+        case "next_button": {
+          await this.next(interaction);
+          break;
+        }
+        case "previous_button": {
+          await this.previous(interaction);
+          break;
+        }
+        case "stop_button": {
+          await this.stop(interaction);
+          break;
+        }
+        case "plus_button": {
+          await this.plus_song(interaction);
+          break;
+        }
       }
-      case "next_button": {
-        this.next();
-        break;
-      }
-      case "previous_button": {
-        this.previous();
-        break;
-      }
-      case "stop_button": {
-        this.stop();
-        break;
-      }
-      case "plus_button": {
-        await interaction.showModal(this.playlistModal).catch((err) => {
-          throw err;
-        });
-        return;
-      }
-    }
-
-    this.updatePlayBar();
-    await interaction.update({ embeds: [this.playBar.embed] }).catch((err) => {
+    } catch (err) {
       throw err;
-    });
+    }
   }
 
   public async executeSubmit(interaction: ModalSubmitInteraction) {
@@ -159,36 +118,79 @@ class DcPlayer {
     });
   }
 
-  private playPause() {
+  private async playPause(interaction: ButtonInteraction) {
+    const { guildId, member } = interaction;
+    if (!interaction || !guildId || !member) {
+      throw new Error(`[ERROR] No interaction, guildId or member`);
+    }
+
+    const guildMember = interaction.guild?.members.cache.get(member.user.id);
+    if (!guildMember?.voice.channelId || !guildMember?.voice.channel) {
+      throw new Error(
+        `[ERROR] ${guildMember?.displayName} not in an voice channel`
+      );
+    }
+
+    await interaction.deferReply();
+
+    if (
+      getVoiceConnection(guildId)?.state?.status != VoiceConnectionStatus.Ready
+    ) {
+      joinVoiceChannel({
+        channelId: guildMember.voice.channelId,
+        guildId: guildId,
+        adapterCreator: guildMember?.voice.channel.guild.voiceAdapterCreator,
+      });
+    }
+
+    this.voiceConnection = getVoiceConnection(guildId);
+    this.voiceConnection?.subscribe(this.player);
+
     switch (this.player.state.status) {
       case AudioPlayerStatus.Playing: {
         this.player.pause();
+        this.playBar.row.components[1].setEmoji("⏸️");
         return;
       }
       case AudioPlayerStatus.Paused: {
         this.player.unpause();
+
+        this.playBar.row.components[1].setEmoji("▶️");
         break;
       }
       case AudioPlayerStatus.Idle: {
         if (this.queue.length == 0) {
           return;
         }
+        this.playBar.row.components[1].setEmoji("⏸️");
         this.playNow();
         break;
       }
     }
+
+    await interaction.deleteReply();
   }
 
-  private previous() {
+  private async previous(interaction: ButtonInteraction) {
+    await interaction.deferReply();
+
     this.index = (this.index - 1 + this.queue.length) % this.queue.length;
 
     this.playNow();
+
+    await this.editPlayBarMessage(interaction);
+    await interaction.deleteReply();
   }
 
-  private next() {
+  private async next(interaction: ButtonInteraction) {
+    await interaction.deferReply();
+
     this.index = (this.index + 1) % this.queue.length;
 
     this.playNow();
+
+    await this.editPlayBarMessage(interaction);
+    await interaction.deleteReply();
   }
 
   private playNow() {
@@ -199,18 +201,36 @@ class DcPlayer {
     }
   }
 
-  private stop() {
+  private async stop(interaction: ButtonInteraction) {
+    await interaction.deferReply();
+
     this.player.stop();
 
     this.queue.length = 0;
     this.index = 0;
 
-    this.disconect();
-  }
-
-  private disconect() {
     this.voiceConnection?.destroy();
     this.voiceConnection = undefined;
+
+    await this.editPlayBarMessage(interaction);
+    await interaction.deleteReply();
+  }
+
+  private async plus_song(interaction: ButtonInteraction) {
+    await interaction.showModal(this.playlistModal).catch((err: Error) => {
+      throw err;
+    });
+  }
+
+  private async editPlayBarMessage(interaction: ButtonInteraction) {
+    this.updatePlayBar();
+    const message = await interaction.channel?.messages
+      .fetch(`${interaction.message?.id}`)
+      .catch((err) => {
+        throw err;
+      });
+
+    await message?.edit({ embeds: [this.playBar.embed] });
   }
 
   private updatePlayBar() {
