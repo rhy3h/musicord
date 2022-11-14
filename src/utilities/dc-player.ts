@@ -12,7 +12,7 @@ import {
   VoiceConnection,
 } from "@discordjs/voice";
 
-import { video_basic_info } from "play-dl";
+import { video_basic_info, InfoData, yt_validate } from "play-dl";
 
 import { PlayBar } from "../components/PlayBar";
 import { Player } from "./player";
@@ -86,24 +86,28 @@ class DcPlayer {
       .split("\n");
 
     await interaction.deferReply();
-    for (const url of input_urls) {
-      const sampleInfo = (
-        await video_basic_info(url).catch((err) => {
-          return;
-        })
-      )?.video_details;
 
-      if (!sampleInfo) {
+    const promises = [];
+    for (const url of input_urls) {
+      if (yt_validate(url) == "video") {
+        promises.push(video_basic_info(url));
+      }
+    }
+
+    let result = await Promise.all(promises);
+    for (let i = 0, len = result.length; i < len; i++) {
+      let video_details = (<InfoData>result[i]).video_details;
+      if (!video_details) {
         continue;
       }
-
       const audioInfo = new AudioInfo(
-        sampleInfo.title || "",
-        sampleInfo.url,
-        sampleInfo.durationInSec
+        video_details.title || "",
+        video_details.url,
+        video_details.durationInSec
       );
       this.queue.push(audioInfo);
     }
+
     this.updatePlayBar();
 
     const message = await interaction.channel?.messages
