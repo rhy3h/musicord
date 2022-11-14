@@ -53,10 +53,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
   if (interaction.isModalSubmit()) {
     await dcPlayer.executeSubmit(interaction).catch(async (err: Error) => {
-      await interaction.reply({ content: err.message });
-      setTimeout(async () => {
-        await interaction.deleteReply();
-      }, timeout);
+      await interaction.deleteReply();
     });
   }
 });
