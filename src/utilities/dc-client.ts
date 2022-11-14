@@ -35,11 +35,13 @@ class DcClient extends Client {
       const command = require(filePath);
       if ("name" in command && "execute" in command) {
         this.commands.set(command.name, command);
+        console.log(`[SUCCESS] The command '${command.name}' registered`);
       } else {
         console.log(
           `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
         );
       }
+      console.log("");
     }
   }
 
