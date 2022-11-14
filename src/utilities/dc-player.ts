@@ -167,7 +167,7 @@ class DcPlayer {
           return;
         }
         this.playBar.row.components[1].setEmoji("⏸️");
-        this.playNow();
+        await this.playNow();
         break;
       }
     }
@@ -180,7 +180,7 @@ class DcPlayer {
 
     this.index = (this.index - 1 + this.queue.length) % this.queue.length;
 
-    this.playNow();
+    await this.playNow();
 
     await this.editPlayBarMessage(interaction);
     await interaction.deleteReply();
@@ -191,15 +191,15 @@ class DcPlayer {
 
     this.index = (this.index + 1) % this.queue.length;
 
-    this.playNow();
+    await this.playNow();
 
     await this.editPlayBarMessage(interaction);
     await interaction.deleteReply();
   }
 
-  private playNow() {
+  private async playNow() {
     try {
-      this.player.playSong(this.queue[this.index].url);
+      await this.player.playSong(this.queue[this.index].url);
     } catch (err) {
       console.log("[ERROR] Play song occur error");
     }

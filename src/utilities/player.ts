@@ -20,7 +20,8 @@ class Player extends AudioPlayer {
   }
 
   public async playSong(url: string) {
-    this.play(await this.getAudioResource(url));
+    let audioResource = await this.getAudioResource(url);
+    this.play(audioResource);
   }
 }
 
