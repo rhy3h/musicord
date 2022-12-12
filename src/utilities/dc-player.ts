@@ -85,7 +85,7 @@ class DcPlayer {
       .getTextInputValue("music_url_list_input")
       .split("\n");
 
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     const promises = [];
     for (const url of input_urls) {
@@ -117,9 +117,7 @@ class DcPlayer {
       });
 
     await message?.edit({ embeds: [this.playBar.embed] });
-    await interaction.deleteReply().catch((err) => {
-      throw err;
-    });
+    await interaction.editReply({ content: `Add to queue success` });
   }
 
   private async playPause(interaction: ButtonInteraction) {

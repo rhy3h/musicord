@@ -45,16 +45,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
         await interaction.deleteReply();
         return;
       }
-      await interaction.reply({ content: err.message });
-      setTimeout(async () => {
-        await interaction.deleteReply();
-      }, timeout);
     });
   }
   if (interaction.isModalSubmit()) {
-    await dcPlayer.executeSubmit(interaction).catch(async (err: Error) => {
-      await interaction.deleteReply();
-    });
+    await dcPlayer.executeSubmit(interaction).catch(() => {});
   }
 });
 
