@@ -38,19 +38,6 @@ class DcPlayer {
     this.queue = [];
   }
 
-  public async executeCommand(interaction: ChatInputCommandInteraction) {
-    switch (interaction.commandId) {
-      case "player": {
-        await interaction.deferReply();
-        await interaction.editReply({
-          embeds: [this.playBar.embed],
-          components: [this.playBar.row],
-        });
-        break;
-      }
-    }
-  }
-
   public async executeButton(interaction: ButtonInteraction) {
     switch (interaction.customId) {
       case "play_pause_button": {
@@ -207,11 +194,9 @@ class DcPlayer {
     interaction: ButtonInteraction | ModalSubmitInteraction
   ) {
     this.updatePlayBar();
-    const message = await interaction.channel?.messages
-      .fetch(`${interaction.message?.id}`)
-      .catch((err) => {
-        throw err;
-      });
+    const message = await interaction.channel?.messages.fetch(
+      `${interaction.message?.id}`
+    );
 
     await message?.edit({
       embeds: [this.playBar.embed],
