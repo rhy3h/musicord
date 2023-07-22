@@ -46,10 +46,6 @@ class DcClient extends Client {
   }
 
   public executeChatInputCommand(interaction: ChatInputCommandInteraction) {
-    if (!interaction.guildId) {
-      return;
-    }
-
     const slashCommand = <SlashCommand>(
       this.commands.get(interaction.commandName)
     );
