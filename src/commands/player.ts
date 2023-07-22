@@ -15,14 +15,10 @@ class PlayerCommand extends SlashCommand {
   public async execute(interaction: ChatInputCommandInteraction) {
     const playbar = new PlayBar();
 
-    await interaction
-      .reply({
-        embeds: [playbar.embed],
-        components: [playbar.row],
-      })
-      .catch(async (error) => {
-        console.log(`${error.name} ${error.message}`);
-      });
+    return await interaction.reply({
+      embeds: [playbar.embed],
+      components: [playbar.row],
+    });
   }
 }
 

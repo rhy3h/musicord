@@ -45,11 +45,13 @@ class DcClient extends Client {
     }
   }
 
-  public executeChatInputCommand(interaction: ChatInputCommandInteraction) {
+  public async executeChatInputCommand(
+    interaction: ChatInputCommandInteraction
+  ) {
     const slashCommand = <SlashCommand>(
       this.commands.get(interaction.commandName)
     );
-    slashCommand?.execute(interaction);
+    await slashCommand?.execute(interaction);
   }
 }
 

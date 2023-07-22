@@ -36,16 +36,20 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   // Slash Commands
   if (interaction.isChatInputCommand()) {
-    client.executeChatInputCommand(interaction);
+    await client.executeChatInputCommand(interaction).catch((error) => {
+      console.log(`${error.name} ${error.message}`);
+    });
   }
 
   if (interaction.isButton()) {
     await dcPlayer.executeButton(interaction).catch((error) => {
-      console.log(error.name, error.message);
+      console.log(`${error.name} ${error.message}`);
     });
   }
   if (interaction.isModalSubmit()) {
-    await dcPlayer.executeSubmit(interaction).catch(() => {});
+    await dcPlayer.executeSubmit(interaction).catch((error) => {
+      console.log(`${error.name} ${error.message}`);
+    });
   }
 });
 

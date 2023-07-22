@@ -5,7 +5,7 @@ abstract class SlashCommand extends SlashCommandBuilder {
     super();
   }
 
-  abstract execute(interaction: ChatInputCommandInteraction): void;
+  abstract execute(interaction: ChatInputCommandInteraction): Promise<any>;
 }
 
 export { SlashCommand };
