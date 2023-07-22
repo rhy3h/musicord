@@ -41,11 +41,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 
   if (interaction.isButton()) {
-    await dcPlayer.executeButton(interaction).catch(async (err) => {
-      if (interaction.replied) {
-        await interaction.deleteReply();
-        return;
-      }
+    await dcPlayer.executeButton(interaction).catch((error) => {
+      console.log(error.name, error.message);
     });
   }
   if (interaction.isModalSubmit()) {
