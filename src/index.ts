@@ -1,9 +1,10 @@
 import { Events, GatewayIntentBits } from "discord.js";
+import { config } from "dotenv";
 
 import { DcClient } from "./utilities/dc-client";
 import { DcPlayer } from "./utilities/dc-player";
 
-import { token } from "./config.json";
+config();
 
 const client = new DcClient({
   intents: [
@@ -52,4 +53,4 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-client.login(token);
+client.login(process.env.MUSICORD_ACCESS_TOKEN);

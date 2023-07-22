@@ -1,11 +1,14 @@
 import { REST, Routes } from "discord.js";
 import fs from "fs/promises";
 import path from "path";
+import { config } from "dotenv";
 
-import { clientId, token } from "./config.json";
+config();
 
 // Construct and prepare an instance of the REST module
-const rest = new REST({ version: "10" }).setToken(token);
+const rest = new REST({ version: "10" }).setToken(
+  process.env.MUSICORD_ACCESS_TOKEN as string
+);
 
 (async () => {
   const commands = [];
@@ -22,9 +25,12 @@ const rest = new REST({ version: "10" }).setToken(token);
 
   try {
     // The put method is used to fully refresh all commands in the guild with the current set
-    await rest.put(Routes.applicationCommands(clientId), {
-      body: commands,
-    });
+    await rest.put(
+      Routes.applicationCommands(process.env.MAGICORD_CLIENT_ID as string),
+      {
+        body: commands,
+      }
+    );
   } catch (error) {
     // And of course, make sure you catch and log any errors!
     console.error(error);
