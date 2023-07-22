@@ -99,15 +99,7 @@ class DcPlayer {
       this.queue.push(audioInfo);
     }
 
-    this.updatePlayBar();
-
-    const message = await interaction.channel?.messages
-      .fetch(`${interaction.message?.id}`)
-      .catch((err) => {
-        throw err;
-      });
-
-    await message?.edit({ embeds: [this.playBar.embed] });
+    await this.editPlayBarMessage(interaction);
     await interaction.deleteReply();
   }
 
@@ -211,7 +203,9 @@ class DcPlayer {
     return await interaction.showModal(this.playlistModal);
   }
 
-  private async editPlayBarMessage(interaction: ButtonInteraction) {
+  private async editPlayBarMessage(
+    interaction: ButtonInteraction | ModalSubmitInteraction
+  ) {
     this.updatePlayBar();
     const message = await interaction.channel?.messages
       .fetch(`${interaction.message?.id}`)
