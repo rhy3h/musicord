@@ -7,7 +7,7 @@
 - Play song from youtube url
 - Queue multiple songs
 
-### Compiles and development
+### Serve
 
 ```
 npm run serve
