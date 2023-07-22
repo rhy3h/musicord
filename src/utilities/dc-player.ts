@@ -52,31 +52,22 @@ class DcPlayer {
   }
 
   public async executeButton(interaction: ButtonInteraction) {
-    try {
-      switch (interaction.customId) {
-        case "play_pause_button": {
-          await this.playPause(interaction);
-          break;
-        }
-        case "next_button": {
-          await this.next(interaction);
-          break;
-        }
-        case "previous_button": {
-          await this.previous(interaction);
-          break;
-        }
-        case "stop_button": {
-          await this.stop(interaction);
-          break;
-        }
-        case "plus_button": {
-          await this.plus_song(interaction);
-          break;
-        }
+    switch (interaction.customId) {
+      case "play_pause_button": {
+        return this.playPause(interaction);
       }
-    } catch (err) {
-      throw err;
+      case "next_button": {
+        return this.next(interaction);
+      }
+      case "previous_button": {
+        return this.previous(interaction);
+      }
+      case "stop_button": {
+        return this.stop(interaction);
+      }
+      case "plus_button": {
+        return this.plus_song(interaction);
+      }
     }
   }
 
@@ -117,23 +108,25 @@ class DcPlayer {
       });
 
     await message?.edit({ embeds: [this.playBar.embed] });
-    await interaction.editReply({ content: `Add to queue success` });
+    await interaction.deleteReply();
   }
 
   private async playPause(interaction: ButtonInteraction) {
     const { guildId, member } = interaction;
     if (!interaction || !guildId || !member) {
-      throw new Error(`[ERROR] No interaction, guildId or member`);
+      return;
     }
 
     const guildMember = interaction.guild?.members.cache.get(member.user.id);
     if (!guildMember?.voice.channelId || !guildMember?.voice.channel) {
-      throw new Error(
-        `[ERROR] ${guildMember?.displayName} not in an voice channel`
-      );
+      await interaction.reply({
+        content: `You're not in an voice channel`,
+        ephemeral: true,
+      });
+      return;
     }
 
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     if (
       getVoiceConnection(guildId)?.state?.status != VoiceConnectionStatus.Ready
@@ -151,13 +144,12 @@ class DcPlayer {
     switch (this.player.state.status) {
       case AudioPlayerStatus.Playing: {
         this.player.pause();
-        this.playBar.row.components[1].setEmoji("⏸️");
-        return;
+        this.playBar.row.components[1].setEmoji("▶️");
+        break;
       }
       case AudioPlayerStatus.Paused: {
         this.player.unpause();
-
-        this.playBar.row.components[1].setEmoji("▶️");
+        this.playBar.row.components[1].setEmoji("⏸️");
         break;
       }
       case AudioPlayerStatus.Idle: {
@@ -170,11 +162,12 @@ class DcPlayer {
       }
     }
 
+    await this.editPlayBarMessage(interaction);
     await interaction.deleteReply();
   }
 
   private async previous(interaction: ButtonInteraction) {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     this.index = (this.index - 1 + this.queue.length) % this.queue.length;
 
@@ -185,7 +178,7 @@ class DcPlayer {
   }
 
   private async next(interaction: ButtonInteraction) {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     this.index = (this.index + 1) % this.queue.length;
 
@@ -196,15 +189,11 @@ class DcPlayer {
   }
 
   private async playNow() {
-    try {
-      await this.player.playSong(this.queue[this.index].url);
-    } catch (err) {
-      console.log("[ERROR] Play song occur error");
-    }
+    await this.player.playSong(this.queue[this.index].url).catch();
   }
 
   private async stop(interaction: ButtonInteraction) {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     this.player.stop();
 
@@ -219,9 +208,7 @@ class DcPlayer {
   }
 
   private async plus_song(interaction: ButtonInteraction) {
-    await interaction.showModal(this.playlistModal).catch((err: Error) => {
-      throw err;
-    });
+    return await interaction.showModal(this.playlistModal);
   }
 
   private async editPlayBarMessage(interaction: ButtonInteraction) {
@@ -232,7 +219,10 @@ class DcPlayer {
         throw err;
       });
 
-    await message?.edit({ embeds: [this.playBar.embed] });
+    await message?.edit({
+      embeds: [this.playBar.embed],
+      components: [this.playBar.row],
+    });
   }
 
   private updatePlayBar() {
