@@ -34,7 +34,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   const dcPlayer = <DcPlayer>dcClient.dcPlayers.get(guildId);
 
-  const timeout = 5 * 1000; // ms
   // Slash Commands
   if (interaction.isChatInputCommand()) {
     client.executeChatInputCommand(interaction);

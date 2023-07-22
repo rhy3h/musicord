@@ -26,7 +26,7 @@ const rest = new REST({ version: "10" }).setToken(
   try {
     // The put method is used to fully refresh all commands in the guild with the current set
     await rest.put(
-      Routes.applicationCommands(process.env.MAGICORD_CLIENT_ID as string),
+      Routes.applicationCommands(process.env.MUSICORD_CLIENT_ID as string),
       {
         body: commands,
       }
