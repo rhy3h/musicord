@@ -1,4 +1,4 @@
-# Discord Music Bot
+# Musicord
 
 [![wakatime](https://wakatime.com/badge/github/rhy3h/musicord.svg)](https://wakatime.com/badge/github/rhy3h/musicord)
 
