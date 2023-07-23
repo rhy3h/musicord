@@ -1,24 +1,23 @@
 {
-  "name": "discord-music-bot",
+  "name": "musicord",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "npx ts-node ./src/index.ts",
-    "deploy": "npx ts-node ./src/deploy-commands.ts"
+    "serve": "npx ts-node src/index.ts",
+    "deploy": "npx ts-node src/deploy-commands.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rhy3h/discord-bot.git"
+    "url": "git+https://github.com/rhy3h/musicord.git"
   },
   "author": "rhy3h",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rhy3h/discord-bot/issues"
+    "url": "https://github.com/rhy3h/musicord/issues"
   },
-  "homepage": "https://github.com/rhy3h/discord-bot#readme",
-  "devDependencies": {},
+  "homepage": "https://github.com/rhy3h/musicord#readme",
   "dependencies": {
     "@discordjs/voice": "^0.16.0",
     "discord.js": "^14.11.0",
