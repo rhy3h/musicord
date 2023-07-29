@@ -1,8 +1,8 @@
 import { Events, GatewayIntentBits } from "discord.js";
 import { config } from "dotenv";
 
-import { DcClient } from "./utilities/dc-client";
-import { DcPlayer } from "./utilities/dc-player";
+import { DcClient } from "@/utilities/dc-client";
+import { DcPlayer } from "@/utilities/dc-player";
 
 config();
 

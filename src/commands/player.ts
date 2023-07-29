@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from "discord.js";
 
-import { SlashCommand } from "../components/SlashCommand";
-import { PlayBar } from "../components/PlayBar";
+import { SlashCommand } from "@/components/SlashCommand";
+import { PlayBar } from "@/components/PlayBar";
 
 class PlayerCommand extends SlashCommand {
   constructor() {

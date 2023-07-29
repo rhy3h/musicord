@@ -8,8 +8,8 @@ import {
 import fs from "fs/promises";
 import path from "path";
 
-import { SlashCommand } from "../components/SlashCommand";
-import { DcPlayer } from "./dc-player";
+import { SlashCommand } from "@/components/SlashCommand";
+import { DcPlayer } from "@/utilities/dc-player";
 
 class DcClient extends Client {
   public commands: Collection<string, SlashCommandBuilder>;
